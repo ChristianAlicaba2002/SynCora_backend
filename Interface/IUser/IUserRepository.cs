@@ -6,6 +6,6 @@ namespace syncora_server.Interface.IUser;
 
 public interface IUserRepository
 {
-    Task RegisterUser(UserDTOs.RegisterUserDTOs _registerUserDTOs);
+    Task RegisterUser(UsersDTOs.RegisterUserDTOs _registerUserDTOs);
     Task<User?> GetUserEmail(string email);
 }
