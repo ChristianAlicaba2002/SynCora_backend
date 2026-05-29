@@ -4,6 +4,6 @@ namespace syncora_server.Interface.IUser;
 
 public interface IUserService
 {
-    Task RegisterUser(UserDTOs.RegisterUserDTOs _registerUserDTOs);
-    Task<string> LoginUser(UserDTOs.LoginUserDTOs _loginUserDTOs);
+    Task RegisterUser(UsersDTOs.RegisterUserDTOs _registerUserDTOs);
+    Task<string> LoginUser(UsersDTOs.LoginUserDTOs _loginUserDTOs);
 }
