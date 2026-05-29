@@ -15,7 +15,7 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
 
     [HttpPost("register")]
     [EnableRateLimiting("auth")]
-    public async Task<IActionResult> RegisterUser(UserDTOs.RegisterUserDTOs _registerUserDTOs)
+    public async Task<IActionResult> RegisterUser(UsersDTOs.RegisterUserDTOs _registerUserDTOs)
     {
         try
         {
@@ -31,7 +31,7 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
 
     [HttpPost("login")]
     [EnableRateLimiting("auth")]
-    public async Task<IActionResult> LoginUser(UserDTOs.LoginUserDTOs _loginUserDTOs)
+    public async Task<IActionResult> LoginUser(UsersDTOs.LoginUserDTOs _loginUserDTOs)
     {
         try
         {
