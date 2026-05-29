@@ -15,7 +15,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<UserService> _logger = logger;
 
-    public async Task<string> LoginUser(UserDTOs.LoginUserDTOs _loginUserDTOs)
+    public async Task<string> LoginUser(UsersDTOs.LoginUserDTOs _loginUserDTOs)
     {
         if (string.IsNullOrEmpty(_loginUserDTOs.Email) && string.IsNullOrEmpty(_loginUserDTOs.Password))
         {
@@ -65,7 +65,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public async Task RegisterUser(UserDTOs.RegisterUserDTOs registerUserDTOs)
+    public async Task RegisterUser(UsersDTOs.RegisterUserDTOs registerUserDTOs)
     {
         var existingUser = await _userRepository.GetUserEmail(registerUserDTOs.Email);
 
