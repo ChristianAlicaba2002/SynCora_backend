@@ -8,9 +8,10 @@ namespace syncora_server.Controller;
 
 [ApiController]
 [Route("api/v1/users")]
-public class UserControllerController(IUserService iUserService) : ControllerBase
+public class UserControllerController(IUserService iUserService, ILogger<UserControllerController> logger) : ControllerBase
 {
     private readonly IUserService _iUserService = iUserService;
+    private readonly ILogger<UserControllerController> _logger = logger;
 
     [HttpPost("register")]
     [EnableRateLimiting("auth")]
@@ -19,6 +20,7 @@ public class UserControllerController(IUserService iUserService) : ControllerBas
         try
         {
             await _iUserService.RegisterUser(_registerUserDTOs);
+            _logger.LogInformation("User registered successfully for {Email}", _registerUserDTOs.Email);
             return Ok(new { message = "User Registered Successfully", status = StatusCodes.Status201Created });
         }
         catch (UserExceptions.EmailAlreadyUsed e)
@@ -26,14 +28,16 @@ public class UserControllerController(IUserService iUserService) : ControllerBas
             return Conflict(new { message = e.Message, status = e.Status });
         }
     }
+
     [HttpPost("login")]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> LoginUser(UserDTOs.LoginUserDTOs _loginUserDTOs)
     {
         try
         {
-            var jwt = await _iUserService.LoginUser(_loginUserDTOs);
-            return Ok(new { message = "User Login Successfully", status = StatusCodes.Status200OK, jwt = jwt });
+            var syncora_jwt = await _iUserService.LoginUser(_loginUserDTOs);
+            _logger.LogInformation("User logged in successfully for {Email}", _loginUserDTOs.Email);
+            return Ok(new { message = "User Login Successfully", status = StatusCodes.Status200OK, jwt = syncora_jwt });
         }
         catch (UserExceptions.UserNotFound e)
         {
@@ -43,11 +47,11 @@ public class UserControllerController(IUserService iUserService) : ControllerBas
         {
             return BadRequest(new { message = e.Message, status = e.Status });
         }
-        catch(UserExceptions.EmailIsRequired e)
+        catch (UserExceptions.EmailIsRequired e)
         {
             return BadRequest(new { message = e.Message, status = e.Status });
         }
-        catch(UserExceptions.PasswordIsRequired e)
+        catch (UserExceptions.PasswordIsRequired e)
         {
             return BadRequest(new { message = e.Message, status = e.Status });
         }
