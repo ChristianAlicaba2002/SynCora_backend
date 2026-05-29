@@ -9,32 +9,37 @@ using syncora_server.Interface.IUser;
 
 namespace syncora_server.Services;
 
-public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
+public class UserService(IUserRepository userRepository, IConfiguration configuration, ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IConfiguration _configuration = configuration;
+    private readonly ILogger<UserService> _logger = logger;
 
     public async Task<string> LoginUser(UserDTOs.LoginUserDTOs _loginUserDTOs)
     {
-        var user = await _userRepository.GetUserEmail(_loginUserDTOs.Email);
-        
-        if(string.IsNullOrEmpty(_loginUserDTOs.Email) && string.IsNullOrEmpty(_loginUserDTOs.Password))
+        if (string.IsNullOrEmpty(_loginUserDTOs.Email) && string.IsNullOrEmpty(_loginUserDTOs.Password))
         {
+            _logger.LogWarning("Login attempt rejected: email and password are missing");
             throw new UserExceptions.RequiredAllFields("All fields are required", StatusCodes.Status400BadRequest);
         }
 
-        if(string.IsNullOrEmpty(_loginUserDTOs.Email))
+        if (string.IsNullOrEmpty(_loginUserDTOs.Email))
         {
+            _logger.LogWarning("Login attempt rejected: email is missing");
             throw new UserExceptions.EmailIsRequired("Email is required", StatusCodes.Status400BadRequest);
         }
-        
-        if(string.IsNullOrEmpty(_loginUserDTOs.Password))
+
+        if (string.IsNullOrEmpty(_loginUserDTOs.Password))
         {
+            _logger.LogWarning("Login attempt rejected: password is missing for {Email}", _loginUserDTOs.Email);
             throw new UserExceptions.RequiredAllFields("Password is required", StatusCodes.Status400BadRequest);
         }
 
+        var user = await _userRepository.GetUserEmail(_loginUserDTOs.Email);
+
         if (user is null || !BCrypt.Net.BCrypt.Verify(_loginUserDTOs.Password, user.Password))
         {
+            _logger.LogWarning("Login failed for {Email}: Email or password is incorrect", _loginUserDTOs.Email);
             throw new UserExceptions.UserNotFound("Email or password is incorrect", StatusCodes.Status400BadRequest);
         }
 
@@ -66,9 +71,11 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         if (existingUser is not null)
         {
+            _logger.LogWarning("Registration rejected: email already in use for {Email}", registerUserDTOs.Email);
             throw new UserExceptions.EmailAlreadyUsed("Email is already used.", StatusCodes.Status409Conflict);
         }
 
         await _userRepository.RegisterUser(registerUserDTOs);
+        _logger.LogInformation("User registered successfully for {Email}", registerUserDTOs.Email);
     }
 }
