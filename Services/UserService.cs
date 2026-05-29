@@ -32,7 +32,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         if (string.IsNullOrEmpty(_loginUserDTOs.Password))
         {
             _logger.LogWarning("Login attempt rejected: password is missing for {Email}", _loginUserDTOs.Email);
-            throw new UserExceptions.RequiredAllFields("Password is required", StatusCodes.Status400BadRequest);
+            throw new UserExceptions.PasswordIsRequired("Password is required", StatusCodes.Status400BadRequest);
         }
 
         var user = await _userRepository.GetUserEmail(_loginUserDTOs.Email);
@@ -76,6 +76,5 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         }
 
         await _userRepository.RegisterUser(registerUserDTOs);
-        _logger.LogInformation("User registered successfully for {Email}", registerUserDTOs.Email);
     }
 }
