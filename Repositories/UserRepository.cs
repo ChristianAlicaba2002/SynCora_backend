@@ -24,7 +24,7 @@ public class UserRepository(AppDbContext appDb) : IUserRepository
         return userEmail;
     }
 
-    public async Task RegisterUser(UserDTOs.RegisterUserDTOs _registerUserDTOs)
+    public async Task RegisterUser(UsersDTOs.RegisterUserDTOs _registerUserDTOs)
     {
         var saveUser = new User
         {
