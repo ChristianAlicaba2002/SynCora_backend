@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using syncora_server.Data;
+using syncora_server.Interface.ICurrentUser;
 using syncora_server.Interface.ITask;
 using syncora_server.Interface.IUser;
 using syncora_server.Repositories;
@@ -14,6 +15,8 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
