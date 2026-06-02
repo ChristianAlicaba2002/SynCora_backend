@@ -6,9 +6,9 @@ using syncora_server.Models;
 
 namespace syncora_server.Repositories;
 
-public class UserRepository(AppDbContext appDb) : IUserRepository
+public class UserRepository(AppDbContext context) : IUserRepository
 {
-    private readonly AppDbContext _db = appDb;
+    private readonly AppDbContext _context = context;
 
     private static string Capitalize(string? value)
     {
@@ -19,7 +19,7 @@ public class UserRepository(AppDbContext appDb) : IUserRepository
 
     public async Task<User?> GetUserEmail(string email)
     {
-        var userEmail = await _db.Users.FirstOrDefaultAsync(user => user.Email == email);
+        var userEmail = await _context.Users.FirstOrDefaultAsync(user => user.Email == email);
 
         return userEmail;
     }
@@ -39,7 +39,7 @@ public class UserRepository(AppDbContext appDb) : IUserRepository
             UpdateddAt = DateTime.Now,
         };
 
-        _db.Users.Add(saveUser);
-        await _db.SaveChangesAsync();
+        _context.Users.Add(saveUser);
+        await _context.SaveChangesAsync();
     }
 }
