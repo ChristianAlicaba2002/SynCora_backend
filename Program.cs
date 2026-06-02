@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using syncora_server.Class;
 using syncora_server.Data;
 using syncora_server.Interface.ICurrentUser;
 using syncora_server.Interface.ITask;
@@ -61,7 +62,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             };
         });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("UserOnly", policy =>
+        policy.RequireClaim("Role", Enums.UserRole.User.ToString()));
+});
 
 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings_DefaultConnection");
 
