@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -35,6 +36,21 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "Version 1 SynCora Endpoints"
     });
+
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+{
+    Name = "Authorization",
+    Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+    Scheme = "bearer",
+    BearerFormat = "JWT",
+    In = Microsoft.OpenApi.ParameterLocation.Header,
+    Description = "Enter your JWT token."
+});
+
+    options.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
+    {
+        [new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document)] = []
+    });
 });
 
 var jwt = builder.Configuration.GetSection("jwt");
@@ -58,7 +74,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtIssuer,
                 ValidAudience = jwtAudience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
+                RoleClaimType = "Role",
+                NameClaimType = JwtRegisteredClaimNames.Sub
             };
         });
 
@@ -120,11 +138,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
-app.UseCors("AllowSpecificOrigin");
 app.UseRateLimiter();
+app.MapControllers();
 
 var summaries = new[]
 {
