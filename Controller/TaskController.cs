@@ -13,19 +13,19 @@ public class TaskController(ITaskService taskService) : ControllerBase
 {
     private readonly ITaskService _taskService = taskService;
 
-    [HttpPost("/create")]
-    [EnableRateLimiting("write")]
-    public async Task<IActionResult> CreateTask([FromBody] CreateTaskDTO dto)
-    {
-        var task = await _taskService.CreateTaskAsync(dto);
-        return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
-    }
-
-    [HttpGet("/")]
+    [HttpGet]
     public async Task<IActionResult> GetMyTasks()
     {
         var tasks = await _taskService.GetMyTasksAsync();
         return Ok(tasks);
+    }
+
+    [EnableRateLimiting("write")]
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateTask([FromBody] CreateTaskDTO dto)
+    {
+        var task = await _taskService.CreateTaskAsync(dto);
+        return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
     }
 
     [HttpGet("{id:guid}")]
