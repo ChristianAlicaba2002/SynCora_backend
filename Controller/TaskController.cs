@@ -21,7 +21,7 @@ public class TaskController(ITaskService taskService) : ControllerBase
     }
 
     [EnableRateLimiting("write")]
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskDTO dto)
     {
         try
