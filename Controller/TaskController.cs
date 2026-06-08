@@ -45,7 +45,7 @@ public class TaskController(ITaskService taskService) : ControllerBase
         return Ok(new { message = "Task retrieved successfully.", status = StatusCodes.Status200OK, data = task });
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPatch("{id:guid}")]
     [EnableRateLimiting("write")]
     public async Task<IActionResult> UpdateTask(Guid id, [FromBody] UpdateTaskDTO dto)
     {
