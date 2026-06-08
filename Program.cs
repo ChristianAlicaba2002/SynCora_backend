@@ -93,16 +93,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddCors(config =>
-{
-    config.AddPolicy("AllowSpecificOrigin", options =>
-    {
-        options.WithOrigins("http://localhost:8081")
-        .AllowAnyHeader()
-        .WithMethods("GET", "POST", "PATCH", "DELETE");
-    });
-});
-
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -138,7 +128,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
