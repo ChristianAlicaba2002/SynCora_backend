@@ -5,15 +5,17 @@ using Microsoft.IdentityModel.Tokens;
 using syncora_server.Class;
 using syncora_server.DTOs;
 using syncora_server.Exceptions;
+using syncora_server.Interface.ICurrentUser;
 using syncora_server.Interface.IUser;
 
 namespace syncora_server.Services;
 
-public class UserService(IUserRepository userRepository, IConfiguration configuration, ILogger<UserService> logger) : IUserService
+public class UserService(IUserRepository userRepository, IConfiguration configuration, ILogger<UserService> logger, ICurrentUserService currentUser) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<UserService> _logger = logger;
+    private readonly ICurrentUserService _currentUser = currentUser;
 
     public async Task<string> LoginUser(UsersDTOs.LoginUserDTOs _loginUserDTOs)
     {
@@ -76,5 +78,48 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         }
 
         await _userRepository.RegisterUser(registerUserDTOs);
+    }
+
+    public async Task<UsersDTOs.UserProfileDTO?> GetCurrentUser()
+    {
+        if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
+        {
+            _logger.LogWarning("Get current user attempt rejected: user is not authenticated");
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+
+        var user = await _userRepository.GetUserById(_currentUser.UserId.Value);
+
+        if (user is null) return null;
+
+        return new UsersDTOs.UserProfileDTO
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            MiddleName = user.MiddleName,
+            LastName = user.LastName,
+            Gender = user.Gender,
+            Email = user.Email,
+            Bio = user.Bio,
+            ImageUrl = user.ImageUrl,
+            CreatedAt = user.CreatedAt
+        };
+    }
+
+    public async Task  UpdateUserProfile(Guid userId, UsersDTOs.UpdateUserDTO _updateUserDTO)
+    {
+        if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
+        {   
+            _logger.LogWarning("Update user profile attempt rejected: user is not authenticated for {UserId}", userId);
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+
+        if (userId != _currentUser.UserId.Value)
+        {
+            _logger.LogWarning("Update user profile attempt rejected: user is not authorized to update this profile for {UserId}", userId);
+            throw new UnauthorizedAccessException("User is not authorized to update this profile.");
+        }
+
+        await _userRepository.UpdateUserProfile(_updateUserDTO, userId);
     }
 }
