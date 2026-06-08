@@ -8,4 +8,6 @@ public interface IUserRepository
 {
     Task RegisterUser(UsersDTOs.RegisterUserDTOs _registerUserDTOs);
     Task<User?> GetUserEmail(string email);
+    Task<User?> GetUserById(Guid id);
+    Task UpdateUserProfile(UsersDTOs.UpdateUserDTO _updateUserDTO, Guid userId);
 }
