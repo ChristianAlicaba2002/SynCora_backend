@@ -13,6 +13,13 @@ public class TaskController(ITaskService taskService) : ControllerBase
 {
     private readonly ITaskService _taskService = taskService;
 
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllTasks()
+    {
+        var tasks = await _taskService.GetAllTasksAsync();
+        return Ok(new { message = "Tasks retrieved successfully.", status = StatusCodes.Status200OK, data = tasks });
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetMyTasks()
     {
