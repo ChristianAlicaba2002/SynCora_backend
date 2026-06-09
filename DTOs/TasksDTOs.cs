@@ -19,6 +19,8 @@ public class TaskResponseDTO
     public DateTime CreatedAt { get; set; }
     public DateTime DueDate { get; set; }
     public Guid UserId { get; set; }
+    public string CreatedByFullName { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
 }
 
 public class UpdateTaskDTO
