@@ -71,4 +71,12 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<Tasks>> GetAllAsync()
+    {
+        return await _context.Tasks
+            .Include(t => t.User)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
 }
