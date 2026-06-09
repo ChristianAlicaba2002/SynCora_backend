@@ -18,6 +18,14 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
         return _currentUser.UserId.Value;
     }
 
+    private static string GetFullName(User? user)
+    {
+        if (user is null) return string.Empty;
+
+        return string.Join(" ", new[] { user.FirstName, user.MiddleName, user.LastName }
+            .Where(part => !string.IsNullOrWhiteSpace(part)));
+    }
+
     private static TaskResponseDTO MapToResponse(Tasks task) => new()
     {
         Id = task.Id,
@@ -27,7 +35,9 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
         Priority = task.Priority,
         CreatedAt = task.CreatedAt,
         DueDate = task.DueDate,
-        UserId = task.UserId
+        UserId = task.UserId,
+        CreatedByFullName = GetFullName(task.User),
+        ImageUrl = task.User?.ImageUrl
     };
 
     public async Task<TaskResponseDTO> CreateTaskAsync(CreateTaskDTO _createTaskDTO)
@@ -62,5 +72,11 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
     {
         var userId = GetAuthenticatedUserId();
         return await _taskRepository.DeleteAsync(taskId, userId);
+    }
+
+    public async Task<List<TaskResponseDTO>> GetAllTasksAsync()
+    {
+        var tasks = await _taskRepository.GetAllAsync();
+        return tasks.Select(MapToResponse).ToList();
     }
 }
