@@ -122,4 +122,9 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         await _userRepository.UpdateUserProfile(_updateUserDTO, userId);
     }
+
+    public Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery)
+    {
+        return _userRepository.SearchUser(searchQuery);
+    }
 }
