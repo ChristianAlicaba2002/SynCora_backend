@@ -80,4 +80,11 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         await _iUserService.UpdateUserProfile(id, _updateUserDTOs);
         return Ok(new { message = "User updated successfully.", status = StatusCodes.Status200OK });
     }
+    [HttpGet("search")]
+    [EnableRateLimiting("read")]
+    public async Task<IActionResult> SearchUser(string searchQuery)
+    {
+        var users = await _iUserService.SearchUser(searchQuery);
+        return Ok(new { message = "Users searched successfully.", status = StatusCodes.Status200OK, data = users });
+    }
 }
