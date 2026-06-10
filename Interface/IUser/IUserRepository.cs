@@ -10,4 +10,5 @@ public interface IUserRepository
     Task<User?> GetUserEmail(string email);
     Task<User?> GetUserById(Guid id);
     Task UpdateUserProfile(UsersDTOs.UpdateUserDTO _updateUserDTO, Guid userId);
+    Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery);
 }
