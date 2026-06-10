@@ -65,4 +65,31 @@ public class UserRepository(AppDbContext context) : IUserRepository
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery)
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+            return [];
+
+        var term = searchQuery.Trim().ToLower();
+
+        return await _context.Users
+            .Where(u =>
+                u.FirstName.ToLower().Contains(term) ||
+                u.LastName.ToLower().Contains(term) ||
+                u.Email.ToLower().Contains(term))
+            .Select(u => new UsersDTOs.UserProfileDTO
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                MiddleName = u.MiddleName,
+                LastName = u.LastName,
+                Gender = u.Gender,
+                Email = u.Email,
+                Bio = u.Bio,
+                ImageUrl = u.ImageUrl,
+                CreatedAt = u.CreatedAt,
+            })
+            .ToListAsync();
+    }
 }
