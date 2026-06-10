@@ -49,6 +49,60 @@ namespace syncora_server.Migrations
                     b.ToTable("Activities");
                 });
 
+            modelBuilder.Entity("syncora_server.Models.Follow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FollowerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FollowingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FollowingId");
+
+                    b.HasIndex("FollowerId", "FollowingId")
+                        .IsUnique();
+
+                    b.ToTable("Follows");
+                });
+
+            modelBuilder.Entity("syncora_server.Models.FollowRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId", "ReceiverId")
+                        .IsUnique()
+                        .HasFilter("[Status] = 0");
+
+                    b.ToTable("FollowRequests");
+                });
+
             modelBuilder.Entity("syncora_server.Models.Tasks", b =>
                 {
                     b.Property<Guid>("Id")
@@ -77,7 +131,7 @@ namespace syncora_server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -144,13 +198,64 @@ namespace syncora_server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("syncora_server.Models.Follow", b =>
+                {
+                    b.HasOne("syncora_server.Models.User", "Follower")
+                        .WithMany("Following")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("syncora_server.Models.User", "Following")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
+                });
+
+            modelBuilder.Entity("syncora_server.Models.FollowRequest", b =>
+                {
+                    b.HasOne("syncora_server.Models.User", "Receiver")
+                        .WithMany("ReceivedFollowRequests")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("syncora_server.Models.User", "Sender")
+                        .WithMany("SentFollowRequests")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("syncora_server.Models.Tasks", b =>
                 {
                     b.HasOne("syncora_server.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("syncora_server.Models.User", b =>
+                {
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
+                    b.Navigation("ReceivedFollowRequests");
+
+                    b.Navigation("SentFollowRequests");
                 });
 #pragma warning restore 612, 618
         }
