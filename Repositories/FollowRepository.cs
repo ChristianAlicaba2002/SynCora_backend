@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using syncora_server.Data;
+using syncora_server.DTOs;
 using syncora_server.Interface.IFollow;
 using syncora_server.Models;
 
@@ -11,13 +12,16 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
 
     public async Task AcceptFollowRequestAsync(Guid requestId, Guid receiverId)
     {
+        if (requestId == Guid.Empty)
+            throw new Exception("Invalid follow request id.");
+
         var followRequest = await _context.FollowRequests.FindAsync(requestId);
 
         if (followRequest is null)
             throw new Exception("Follow request not found.");
 
         if (followRequest.ReceiverId != receiverId)
-            throw new Exception("You are not authorized to accept this follow request.");
+            throw new UnauthorizedAccessException("You are not authorized to accept this follow request.");
 
         if (followRequest.Status != FollowRequestStatus.Pending)
             throw new Exception("This follow request is no longer pending.");
@@ -26,7 +30,7 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
             f.FollowerId == followRequest.SenderId && f.FollowingId == followRequest.ReceiverId);
 
         if (alreadyFollowing)
-            throw new Exception("You are already following this user.");
+            throw new Exception("This user is already following you.");
 
         followRequest.Status = FollowRequestStatus.Accepted;
 
@@ -39,6 +43,29 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
         });
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<FollowRequestResponseDto>> GetUserFollowRequestAsync(Guid userId)
+    {
+        return await _context.FollowRequests
+            .Where(fr => fr.ReceiverId == userId && fr.Status == FollowRequestStatus.Pending)
+            .Select(fr => new FollowRequestResponseDto
+            {
+                Id = fr.Id,
+                SenderId = fr.SenderId,
+                ReceiverId = fr.ReceiverId,
+                Status = fr.Status.ToString(),
+                CreatedAt = fr.CreatedAt,
+                Sender = new FollowRequestSenderDto
+                {
+                    Id = fr.Sender.Id,
+                    FirstName = fr.Sender.FirstName,
+                    MiddleName = fr.Sender.MiddleName,
+                    LastName = fr.Sender.LastName,
+                    ImageUrl = fr.Sender.ImageUrl,
+                },
+            })
+            .ToListAsync();
     }
 
     public async Task SendFollowRequestAsync(Guid senderId, Guid receiverId)
