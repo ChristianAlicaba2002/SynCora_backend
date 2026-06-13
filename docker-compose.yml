@@ -1,0 +1,26 @@
+services:
+  frontend:
+    build: ../Syncora
+    ports:
+      - 8081:8081
+    volumes:
+      - ../SynCora:/app
+    env_file:
+      - ../SynCora/.env
+    develop:
+      watch:
+        - path: ../SynCora/package.json
+          action: rebuild
+    depends_on:
+      - syncora_server
+  syncora_server:
+    build: .
+    ports:
+      - 5200:5200
+    env_file:
+      - .env
+    develop:
+      watch:
+        - path: .
+          action: rebuild
+      
