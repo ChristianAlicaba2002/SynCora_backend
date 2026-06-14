@@ -66,4 +66,40 @@ public class FollowController(IFollowService followService) : ControllerBase
             return BadRequest(new { message = e.Message, status = StatusCodes.Status400BadRequest });
         }
     }
+
+    [HttpPost("unfollow")]
+    [EnableRateLimiting("write")]
+    public async Task<IActionResult> Unfollow([FromBody] UnfollowDto? dto)
+    {
+        if (dto is null || dto.ReceiverId == Guid.Empty)
+            return BadRequest(new { message = "Receiver id is required.", status = StatusCodes.Status400BadRequest });
+
+        try
+        {
+            await _followService.UnfollowAsync(dto.ReceiverId);
+            return Ok(new { message = "Unfollowed successfully.", status = StatusCodes.Status200OK });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { message = e.Message, status = StatusCodes.Status400BadRequest });
+        }
+    }
+
+    [HttpPost("cancel")]
+    [EnableRateLimiting("write")]
+    public async Task<IActionResult> CancelFollowRequest([FromBody] CancelFollowRequestDto? dto)
+    {
+        if (dto is null || dto.FolloweeId == Guid.Empty)
+            return BadRequest(new { message = "Followee id is required.", status = StatusCodes.Status400BadRequest });
+
+        try
+        {
+            await _followService.CancelFollowRequestAsync(dto.FolloweeId);
+            return Ok(new { message = "Follow request cancelled successfully.", status = StatusCodes.Status200OK });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { message = e.Message, status = StatusCodes.Status400BadRequest });
+        }
+    }
 }
