@@ -102,7 +102,8 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             Email = user.Email,
             Bio = user.Bio,
             ImageUrl = user.ImageUrl,
-            CreatedAt = user.CreatedAt
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdateddAt
         };
     }
 
@@ -126,5 +127,40 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
     public Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery)
     {
         return _userRepository.SearchUser(searchQuery);
+    }
+
+    public async Task<UsersDTOs.UserProfileDTO?> GetUserById(Guid id)
+    {
+        var user = await _userRepository.GetUserById(id);
+        if (user is null) return null;
+
+        var isFollowing = false;
+        var isRequested = false;
+        var hasIncomingRequest = false;
+
+        if (_currentUser.IsAuthenticated && _currentUser.UserId is not null)
+        {
+            var currentUserId = _currentUser.UserId.Value;
+            isFollowing = await _userRepository.IsFollowing(currentUserId, id);
+            isRequested = await _userRepository.IsRequested(currentUserId, id);
+            hasIncomingRequest = await _userRepository.HasIncomingRequest(currentUserId, id);
+        }
+
+        return new UsersDTOs.UserProfileDTO
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            MiddleName = user.MiddleName,
+            LastName = user.LastName,
+            Gender = user.Gender,
+            Email = user.Email,
+            Bio = user.Bio,
+            ImageUrl = user.ImageUrl,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdateddAt,
+            IsFollowing = isFollowing,
+            IsRequested = isRequested,
+            HasIncomingRequest = hasIncomingRequest
+        };
     }
 }
