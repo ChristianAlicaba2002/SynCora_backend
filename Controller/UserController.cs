@@ -80,6 +80,21 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         await _iUserService.UpdateUserProfile(id, _updateUserDTOs);
         return Ok(new { message = "User updated successfully.", status = StatusCodes.Status200OK });
     }
+
+    [Authorize(Policy = "UserOnly")]
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetUserById(Guid id)
+    {
+        var user = await _iUserService.GetUserById(id);
+        if (user is null)
+        {
+            _logger.LogWarning("User not found for {UserId}", id);
+            return NotFound(new { message = "User not found.", status = StatusCodes.Status404NotFound });
+        }
+
+        return Ok(new { message = "User retrieved successfully.", status = StatusCodes.Status200OK, data = user });
+    }
+
     [HttpGet("search")]
     [EnableRateLimiting("read")]
     public async Task<IActionResult> SearchUser(string searchQuery)
