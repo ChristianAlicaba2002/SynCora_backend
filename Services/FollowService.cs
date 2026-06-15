@@ -30,4 +30,20 @@ public class FollowService(IFollowRepository followRepository, ICurrentUserServi
 
         await _followRepository.SendFollowRequestAsync(senderId.Value, receiverId);
     }
+
+    public async Task UnfollowAsync(Guid followingId)
+    {
+        var followerId = _currentUserService.UserId;
+        if (followerId is null) throw new Exception("User not found.");
+
+        await _followRepository.UnfollowAsync(followerId.Value, followingId);
+    }
+
+    public async Task CancelFollowRequestAsync(Guid receiverId)
+    {
+        var senderId = _currentUserService.UserId;
+        if (senderId is null) throw new Exception("User not found.");
+
+        await _followRepository.CancelFollowRequestAsync(senderId.Value, receiverId);
+    }
 }
