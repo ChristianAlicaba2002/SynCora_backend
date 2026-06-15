@@ -103,4 +103,40 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
         await _context.FollowRequests.AddAsync(followRequest);
         await _context.SaveChangesAsync();
     }
+
+    public async Task UnfollowAsync(Guid followerId, Guid followingId)
+    {
+        var follow = await _context.Follows.FirstOrDefaultAsync(f =>
+            f.FollowerId == followerId && f.FollowingId == followingId);
+
+        if (follow is not null)
+        {
+            _context.Follows.Remove(follow);
+        }
+
+        // Also clean up any accepted or pending follow requests between them
+        var followRequest = await _context.FollowRequests.FirstOrDefaultAsync(fr =>
+            fr.SenderId == followerId && fr.ReceiverId == followingId);
+
+        if (followRequest is not null)
+        {
+            _context.FollowRequests.Remove(followRequest);
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task CancelFollowRequestAsync(Guid senderId, Guid receiverId)
+    {
+        var followRequest = await _context.FollowRequests.FirstOrDefaultAsync(fr =>
+            fr.SenderId == senderId &&
+            fr.ReceiverId == receiverId &&
+            fr.Status == FollowRequestStatus.Pending);
+
+        if (followRequest is not null)
+        {
+            _context.FollowRequests.Remove(followRequest);
+            await _context.SaveChangesAsync();
+        }
+    }
 }
