@@ -29,6 +29,10 @@ public class UsersDTOs
         public string Bio { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public bool IsFollowing { get; set; }
+        public bool IsRequested { get; set; }
+        public bool HasIncomingRequest { get; set; }
     }
 
     public class UpdateUserDTO
