@@ -28,3 +28,14 @@ public class FollowRequestResponseDto
     public DateTime CreatedAt { get; set; }
     public FollowRequestSenderDto Sender { get; set; } = null!;
 }
+
+public class UnfollowDto
+{
+    public Guid ReceiverId { get; set; }
+}
+
+public class CancelFollowRequestDto
+{
+    public Guid FolloweeId { get; set; }
+}
+
