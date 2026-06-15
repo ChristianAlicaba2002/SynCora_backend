@@ -71,25 +71,47 @@ public class UserRepository(AppDbContext context) : IUserRepository
         if (string.IsNullOrWhiteSpace(searchQuery))
             return [];
 
-        var term = searchQuery.Trim().ToLower();
+        IQueryable<User> query = _context.Users;
 
-        return await _context.Users
-            .Where(u =>
+        if (Guid.TryParse(searchQuery, out Guid id))
+        {
+            query = query.Where(u => u.Id == id);
+        }
+        else
+        {
+            var term = searchQuery.Trim().ToLower();
+            query = query.Where(u =>
                 u.FirstName.ToLower().Contains(term) ||
                 u.LastName.ToLower().Contains(term) ||
-                u.Email.ToLower().Contains(term))
-            .Select(u => new UsersDTOs.UserProfileDTO
-            {
-                Id = u.Id,
-                FirstName = u.FirstName,
-                MiddleName = u.MiddleName,
-                LastName = u.LastName,
-                Gender = u.Gender,
-                Email = u.Email,
-                Bio = u.Bio,
-                ImageUrl = u.ImageUrl,
-                CreatedAt = u.CreatedAt,
-            })
-            .ToListAsync();
+                u.Email.ToLower().Contains(term));
+        }
+
+        return await query.Select(u => new UsersDTOs.UserProfileDTO
+        {
+            Id = u.Id,
+            FirstName = u.FirstName,
+            MiddleName = u.MiddleName,
+            LastName = u.LastName,
+            Gender = u.Gender,
+            Email = u.Email,
+            Bio = u.Bio,
+            ImageUrl = u.ImageUrl,
+            CreatedAt = u.CreatedAt,
+        }).ToListAsync();
+    }
+
+    public async Task<bool> IsFollowing(Guid followerId, Guid followingId)
+    {
+        return await _context.Follows.AnyAsync(f => f.FollowerId == followerId && f.FollowingId == followingId);
+    }
+
+    public async Task<bool> IsRequested(Guid senderId, Guid receiverId)
+    {
+        return await _context.FollowRequests.AnyAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.Status == FollowRequestStatus.Pending);
+    }
+
+    public async Task<bool> HasIncomingRequest(Guid receiverId, Guid senderId)
+    {
+        return await _context.FollowRequests.AnyAsync(fr => fr.ReceiverId == receiverId && fr.SenderId == senderId && fr.Status == FollowRequestStatus.Pending);
     }
 }
