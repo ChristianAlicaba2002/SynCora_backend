@@ -11,4 +11,7 @@ public interface IUserRepository
     Task<User?> GetUserById(Guid id);
     Task UpdateUserProfile(UsersDTOs.UpdateUserDTO _updateUserDTO, Guid userId);
     Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery);
+    Task<bool> IsFollowing(Guid followerId, Guid followingId);
+    Task<bool> IsRequested(Guid senderId, Guid receiverId);
+    Task<bool> HasIncomingRequest(Guid receiverId, Guid senderId);
 }
