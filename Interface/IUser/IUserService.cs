@@ -10,4 +10,5 @@ public interface IUserService
     Task<UsersDTOs.UserProfileDTO?> GetCurrentUser();
     Task UpdateUserProfile(Guid userId, UsersDTOs.UpdateUserDTO _updateUserDTO);
     Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery);
+    Task<UsersDTOs.UserProfileDTO?> GetUserById(Guid id);
 }
