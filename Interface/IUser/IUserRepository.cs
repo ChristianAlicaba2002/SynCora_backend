@@ -14,4 +14,6 @@ public interface IUserRepository
     Task<bool> IsFollowing(Guid followerId, Guid followingId);
     Task<bool> IsRequested(Guid senderId, Guid receiverId);
     Task<bool> HasIncomingRequest(Guid receiverId, Guid senderId);
+    Task<int> GetUserFollowersCount(Guid followingId);
+    Task<int> GetUserFollowingCount(Guid followerId);
 }
