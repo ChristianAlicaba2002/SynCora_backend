@@ -11,4 +11,6 @@ public interface IUserService
     Task UpdateUserProfile(Guid userId, UsersDTOs.UpdateUserDTO _updateUserDTO);
     Task<List<UsersDTOs.UserProfileDTO>> SearchUser(string searchQuery);
     Task<UsersDTOs.UserProfileDTO?> GetUserById(Guid id);
+    Task<int> GetUserFollowersCount();
+    Task<int> GetUserFollowingCount();
 }
