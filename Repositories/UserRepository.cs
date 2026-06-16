@@ -114,4 +114,14 @@ public class UserRepository(AppDbContext context) : IUserRepository
     {
         return await _context.FollowRequests.AnyAsync(fr => fr.ReceiverId == receiverId && fr.SenderId == senderId && fr.Status == FollowRequestStatus.Pending);
     }
+
+    public async Task<int> GetUserFollowersCount(Guid followingId)
+    {
+        return await _context.Follows.CountAsync(f => f.FollowingId == followingId);
+    }
+
+    public async Task<int> GetUserFollowingCount(Guid followerId)
+    {
+        return await _context.Follows.CountAsync(f => f.FollowerId == followerId);
+    }
 }
