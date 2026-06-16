@@ -42,6 +42,8 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
             CreatedAt = DateTime.UtcNow,
         });
 
+        _context.FollowRequests.Remove(followRequest);
+
         await _context.SaveChangesAsync();
     }
 
