@@ -163,4 +163,18 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             HasIncomingRequest = hasIncomingRequest
         };
     }
+
+    public async Task<int> GetUserFollowersCount()
+    {
+        var userId = _currentUser.UserId;
+        if (userId is null) throw new Exception("User not found.");
+        return await _userRepository.GetUserFollowersCount(userId.Value);
+    }
+
+    public async Task<int> GetUserFollowingCount()
+    {
+        var userId = _currentUser.UserId;
+        if (userId is null) throw new Exception("User not found.");
+        return await _userRepository.GetUserFollowingCount(userId.Value);
+    }
 }
