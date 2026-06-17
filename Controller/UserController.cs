@@ -103,19 +103,17 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         return Ok(new { message = "Users searched successfully.", status = StatusCodes.Status200OK, data = users });
     }
 
-    [Authorize(Policy = "UserOnly")]
-    [HttpGet("followers-count")]
-    public async Task<IActionResult> GetUserFollowersCount()
+    [HttpGet("{id:guid}/followers-count")]
+    public async Task<IActionResult> GetUserFollowersCount(Guid id)
     {
-        var followersCount = await _iUserService.GetUserFollowersCount();
+        var followersCount = await _iUserService.GetUserFollowersCount(id);
         return Ok(new { message = "User followers count retrieved successfully.", status = StatusCodes.Status200OK, data = followersCount });
     }
 
-    [Authorize(Policy = "UserOnly")]
-    [HttpGet("following-count")]
-    public async Task<IActionResult> GetUserFollowingCount()
+    [HttpGet("{id:guid}/following-count")]
+    public async Task<IActionResult> GetUserFollowingCount(Guid id)
     {
-        var followingCount = await _iUserService.GetUserFollowingCount();
+        var followingCount = await _iUserService.GetUserFollowingCount(id);
         return Ok(new { message = "User following count retrieved successfully.", status = StatusCodes.Status200OK, data = followingCount });
     }
 }
