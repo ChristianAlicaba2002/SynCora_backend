@@ -114,18 +114,22 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task UnfollowAsync(Guid followerId, Guid followingId)
+    public async Task UnfollowAsync(Guid userId, Guid targetUserId)
     {
-        var follow = await _context.Follows.FirstOrDefaultAsync(f =>
-            f.FollowerId == followerId && f.FollowingId == followingId);
+        var relations = await _context.Follows
+            .Where(f =>
+                (f.FollowerId == userId && f.FollowingId == targetUserId) ||
+                (f.FollowerId == targetUserId && f.FollowingId == userId))
+            .ToListAsync();
 
-        if (follow is not null)
+        if (relations.Any())
         {
-            _context.Follows.Remove(follow);
+            _context.Follows.RemoveRange(relations);
         }
 
         var followRequest = await _context.FollowRequests.FirstOrDefaultAsync(fr =>
-            fr.SenderId == followerId && fr.ReceiverId == followingId);
+            (fr.SenderId == userId && fr.ReceiverId == targetUserId) ||
+            (fr.SenderId == targetUserId && fr.ReceiverId == userId));
 
         if (followRequest is not null)
         {
@@ -134,7 +138,6 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
 
         await _context.SaveChangesAsync();
     }
-
     public async Task CancelFollowRequestAsync(Guid senderId, Guid receiverId)
     {
         var followRequest = await _context.FollowRequests.FirstOrDefaultAsync(fr =>
