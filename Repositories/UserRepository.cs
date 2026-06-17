@@ -115,13 +115,15 @@ public class UserRepository(AppDbContext context) : IUserRepository
         return await _context.FollowRequests.AnyAsync(fr => fr.ReceiverId == receiverId && fr.SenderId == senderId && fr.Status == FollowRequestStatus.Pending);
     }
 
-    public async Task<int> GetUserFollowersCount(Guid followerId)
+    public async Task<int> GetUserFollowersCount(Guid userId)
     {
-        return await _context.Follows.CountAsync(f => f.FollowerId == followerId);
+        return await _context.Follows
+            .CountAsync(f => f.FollowingId == userId);
     }
 
-    public async Task<int> GetUserFollowingCount(Guid followingId)
+    public async Task<int> GetUserFollowingCount(Guid userId)
     {
-        return await _context.Follows.CountAsync(f => f.FollowingId == followingId);
+        return await _context.Follows
+            .CountAsync(f => f.FollowerId == userId);
     }
 }
