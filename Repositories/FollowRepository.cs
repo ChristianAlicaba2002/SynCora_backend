@@ -42,6 +42,14 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
             CreatedAt = DateTime.UtcNow,
         });
 
+        await _context.Follows.AddAsync(new Follow
+        {
+            Id = Guid.NewGuid(),
+            FollowerId = followRequest.ReceiverId,
+            FollowingId = followRequest.SenderId,
+            CreatedAt = DateTime.UtcNow,
+        });
+
         _context.FollowRequests.Remove(followRequest);
 
         await _context.SaveChangesAsync();
