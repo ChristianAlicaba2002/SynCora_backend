@@ -116,7 +116,6 @@ public class FollowRepository(AppDbContext context) : IFollowRepository
             _context.Follows.Remove(follow);
         }
 
-        // Also clean up any accepted or pending follow requests between them
         var followRequest = await _context.FollowRequests.FirstOrDefaultAsync(fr =>
             fr.SenderId == followerId && fr.ReceiverId == followingId);
 
