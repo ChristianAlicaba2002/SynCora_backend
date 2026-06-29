@@ -1,26 +1,22 @@
 services:
   frontend:
-    build: ../Syncora
+    build: ../SynCora
     ports:
-      - 8081:8081
+      - "5173:5173"
     volumes:
       - ../SynCora:/app
+      - /app/node_modules
+      - /app/.expo
+      - /app/package.json*
     env_file:
       - ../SynCora/.env
-    develop:
-      watch:
-        - path: ../SynCora/package.json
-          action: rebuild
     depends_on:
       - syncora_server
+    command: npx expo start --tunnel --clear
+
   syncora_server:
     build: .
     ports:
-      - 5200:5200
+      - "5200:5200"
     env_file:
       - .env
-    develop:
-      watch:
-        - path: .
-          action: rebuild
-      
