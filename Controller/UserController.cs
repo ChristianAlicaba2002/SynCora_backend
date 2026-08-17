@@ -84,8 +84,7 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         if (user is null)
         {
             _logger.LogWarning("User not found for {UserId}", user?.Id);
-            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status404NotFound, "User not found.");
-            return NotFound(response);
+            return NotFound(ApiResponse<object>.FailedResponse(StatusCodes.Status404NotFound, "User not found."));
         }
 
         var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status200OK, "User retrieved successfully.", user);
@@ -109,8 +108,7 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         if (user is null)
         {
             _logger.LogWarning("User not found for {UserId}", id);
-            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status404NotFound, "User not found.");
-            return NotFound(response);
+            return NotFound(ApiResponse<object>.FailedResponse(StatusCodes.Status404NotFound, "User not found."));
         }
         var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status200OK, "User retrieved successfully.", user);
         return Ok(response);
