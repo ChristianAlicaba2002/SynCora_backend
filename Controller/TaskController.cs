@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using syncora_server.DTOs;
+using syncora_server.Exceptions;
 using syncora_server.Interface.ITask;
+using syncora_server.Utils;
 
 namespace syncora_server.Controller;
 
@@ -17,14 +19,16 @@ public class TaskController(ITaskService taskService) : ControllerBase
     public async Task<IActionResult> GetAllTasks()
     {
         var tasks = await _taskService.GetAllTasksAsync();
-        return Ok(new { message = "Tasks retrieved successfully.", status = StatusCodes.Status200OK, data = tasks });
+        var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status200OK, "Tasks retrieved successfully.", tasks);
+        return Ok(response);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetMyTasks()
     {
         var tasks = await _taskService.GetMyTasksAsync();
-        return Ok(new { message = "Tasks retrieved successfully.", status = StatusCodes.Status200OK, data = tasks });
+        var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status200OK, "Tasks retrieved successfully.", tasks);
+        return Ok(response);
     }
 
     [EnableRateLimiting("write")]
@@ -34,22 +38,31 @@ public class TaskController(ITaskService taskService) : ControllerBase
         try
         {
             var task = await _taskService.CreateTaskAsync(dto);
-            return StatusCode(StatusCodes.Status201Created, new { message = "Task created successfully.", status = StatusCodes.Status201Created, data = task });
+            var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status201Created, "Task created successfully.", task);
+            return Ok(response);
         }
         catch (Exception e)
         {
-            return BadRequest(new { message = e.Message, status = StatusCodes.Status400BadRequest });
+            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status400BadRequest, e.Message);
+            return BadRequest(response);
         }
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetTaskById(Guid id)
     {
-        var task = await _taskService.GetTaskByIdAsync(id);
-        if (task is null)
-            return NotFound(new { message = "Task not found.", status = StatusCodes.Status404NotFound });
-
-        return Ok(new { message = "Task retrieved successfully.", status = StatusCodes.Status200OK, data = task });
+        try
+        {
+            var task = await _taskService.GetTaskByIdAsync(id);
+            var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status200OK, "Task retrieved successfully.", task);
+            return Ok(response);
+            
+        }
+        catch (TaskExceptions.TaskNotFound e)
+        {
+            var response = ApiResponse<object>.FailedResponse(e.StatusCode, e.Message);
+            return NotFound(response);
+        }
     }
 
     [HttpPatch("{id:guid}")]
