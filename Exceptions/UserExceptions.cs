@@ -7,7 +7,7 @@ public class UserExceptions
         override
         public string Message
         { get; } = message;
-        public int Status { get; } = status;
+        public int StatusCode { get; } = status;
     }
 
     public class RequiredAllFields(string message, int status) : Exception
@@ -15,21 +15,21 @@ public class UserExceptions
         override
         public string Message
         { get; } = message;
-        public int Status { get; } = status;
+        public int StatusCode { get; } = status;
     }
     public class EmailIsRequired(string message, int status) : Exception
     {
         override
         public string Message
         { get; } = message;
-        public int Status { get; } = status;
+        public int StatusCode { get; } = status;
     }
     public class PasswordIsRequired(string message, int status) : Exception
     {
         override
         public string Message
         { get; } = message;
-        public int Status { get; } = status;
+        public int StatusCode { get; } = status;
     }
     
 
@@ -38,6 +38,6 @@ public class UserExceptions
         override
         public string Message
         { get; } = message;
-        public int Status { get; } = status;
+        public int StatusCode { get; } = status;
     }
 }
