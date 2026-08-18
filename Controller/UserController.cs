@@ -33,7 +33,7 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         catch (UserExceptions.EmailAlreadyUsed e)
         {
             _logger.LogInformation("Email already used for {Email}", _registerUserDTOs.Email);
-            var response = ApiResponse<object>.FailedResponse( StatusCodes.Status409Conflict,e.Message);
+            var response = ApiResponse<object>.FailedResponse( e.StatusCode, e.Message);
             return Conflict(response);
         }
     }
@@ -53,25 +53,25 @@ public class UserControllerController(IUserService iUserService, ILogger<UserCon
         catch (UserExceptions.UserNotFound e)
         {
             _logger.LogInformation("User not found for {Email}", _loginUserDTOs.Email);
-            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status400BadRequest, e.Message);
+            var response = ApiResponse<object>.FailedResponse(e.StatusCode, e.Message);
             return BadRequest(response);
         }
         catch (UserExceptions.RequiredAllFields e)
         {
             _logger.LogInformation("All fields are required");
-            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status400BadRequest, e.Message);
+            var response = ApiResponse<object>.FailedResponse(e.StatusCode, e.Message);
             return BadRequest(response);
         }
         catch (UserExceptions.EmailIsRequired e)
         {
             _logger.LogInformation("Email is required");
-            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status400BadRequest, e.Message);
+            var response = ApiResponse<object>.FailedResponse(e.StatusCode, e.Message);
             return BadRequest(response);
         }
         catch (UserExceptions.PasswordIsRequired e)
         {
             _logger.LogInformation("Password is required");
-            var response = ApiResponse<object>.FailedResponse(StatusCodes.Status400BadRequest, e.Message);
+            var response = ApiResponse<object>.FailedResponse(e.StatusCode, e.Message);
             return BadRequest(response);
         }
     }

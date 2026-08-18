@@ -1,4 +1,5 @@
 using syncora_server.DTOs;
+using syncora_server.Exceptions;
 using syncora_server.Interface.ICurrentUser;
 using syncora_server.Interface.ITask;
 using syncora_server.Models;
@@ -57,7 +58,7 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
     public async Task<TaskResponseDTO?> GetTaskByIdAsync(Guid taskId)
     {
         var userId = GetAuthenticatedUserId();
-        var task = await _taskRepository.GetByIdAsync(taskId, userId);
+        var task = await _taskRepository.GetByIdAsync(taskId, userId) ?? throw new TaskExceptions.TaskNotFound("Task not found.", StatusCodes.Status404NotFound);
         return task is null ? null : MapToResponse(task);
     }
 
@@ -77,6 +78,10 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
     public async Task<List<TaskResponseDTO>> GetAllTasksAsync()
     {
         var tasks = await _taskRepository.GetAllAsync();
-        return tasks.Select(MapToResponse).ToList();
+        if(tasks is null)
+        {
+            throw new Exception("No tasks found.");
+        }
+        return [.. tasks.Select(MapToResponse)];
     }
 }
