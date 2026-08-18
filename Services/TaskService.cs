@@ -77,11 +77,7 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
 
     public async Task<List<TaskResponseDTO>> GetAllTasksAsync()
     {
-        var tasks = await _taskRepository.GetAllAsync();
-        if(tasks is null)
-        {
-            throw new Exception("No tasks found.");
-        }
+        var tasks = await _taskRepository.GetAllAsync() ?? throw new TaskExceptions.TaskNotFound("Task not found.", StatusCodes.Status404NotFound);
         return [.. tasks.Select(MapToResponse)];
     }
 }
