@@ -1,10 +1,5 @@
 namespace syncora_server.DTOs;
 
-public class SendFollowRequestDto
-{
-    public Guid ReceiverId { get; set; }
-}
-
 public class AcceptFollowRequestDto
 {
     public Guid RequestId { get; set; }
