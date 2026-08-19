@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using syncora_server.DTOs;
+using syncora_server.Exceptions;
 using syncora_server.Interface.IFollow;
+using syncora_server.Utils;
 
 namespace syncora_server.Controller;
 
@@ -15,19 +17,18 @@ public class FollowController(IFollowService followService) : ControllerBase
 
     [HttpPost("send")]
     [EnableRateLimiting("write")]
-    public async Task<IActionResult> SendFollowRequest([FromBody] SendFollowRequestDto? dto)
+    public async Task<IActionResult> SendFollowRequest([FromBody] Guid receiverId)
     {
-        if (dto is null || dto.ReceiverId == Guid.Empty)
-            return BadRequest(new { message = "Receiver id is required.", status = StatusCodes.Status400BadRequest });
-
         try
         {
-            await _followService.SendFollowRequestAsync(dto.ReceiverId);
-            return Ok(new { message = "Follow request sent successfully.", status = StatusCodes.Status200OK });
+            await _followService.SendFollowRequestAsync(receiverId);
+            var response = ApiResponse<object>.SuccessResponse(StatusCodes.Status200OK, "Follow request sent successfully.", null);
+            return Ok(response);
         }
-        catch (Exception e)
+        catch (UserExceptions.UserNotFound e)
         {
-            return BadRequest(new { message = e.Message, status = StatusCodes.Status400BadRequest });
+            var response = ApiResponse<object>.FailedResponse(e.StatusCode, e.Message);
+            return BadRequest(response);
         }
     }
 
@@ -90,7 +91,7 @@ public class FollowController(IFollowService followService) : ControllerBase
     public async Task<IActionResult> CancelFollowRequest([FromBody] CancelFollowRequestDto? dto)
     {
         if (dto is null || dto.FolloweeId == Guid.Empty)
-            return BadRequest(new { message = "Followee id is required.", status = StatusCodes.Status400BadRequest });
+            return BadRequest(new { message = "Follower id is required.", status = StatusCodes.Status400BadRequest });
 
         try
         {
