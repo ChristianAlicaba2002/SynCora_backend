@@ -52,7 +52,7 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
     {
         var userId = GetAuthenticatedUserId();
         var tasks = await _taskRepository.GetAllByUserIdAsync(userId);
-        return tasks.Select(MapToResponse).ToList();
+        return [.. tasks.Select(MapToResponse)];
     }
 
     public async Task<TaskResponseDTO?> GetTaskByIdAsync(Guid taskId)
@@ -65,14 +65,15 @@ public class TaskService(ITaskRepository taskRepository, ICurrentUserService cur
     public async Task<TaskResponseDTO?> UpdateTaskAsync(Guid taskId, UpdateTaskDTO _updateTaskDTO)
     {
         var userId = GetAuthenticatedUserId();
-        var task = await _taskRepository.UpdateAsync(taskId, userId, _updateTaskDTO);
-        return task is null ? null : MapToResponse(task);
+        var task = await _taskRepository.UpdateAsync(taskId, userId, _updateTaskDTO) ?? throw new TaskExceptions.TaskNotFound("Task not found.", StatusCodes.Status404NotFound);
+        return MapToResponse(task);
     }
 
     public async Task<bool> DeleteTaskAsync(Guid taskId)
     {
         var userId = GetAuthenticatedUserId();
-        return await _taskRepository.DeleteAsync(taskId, userId);
+        var task = _taskRepository.DeleteAsync(taskId, userId) ?? throw new TaskExceptions.TaskNotFound("Task not found.", StatusCodes.Status404NotFound);
+        return await task;
     }
 
     public async Task<List<TaskResponseDTO>> GetAllTasksAsync()
