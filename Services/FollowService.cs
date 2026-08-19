@@ -1,4 +1,5 @@
 using syncora_server.DTOs;
+using syncora_server.Exceptions;
 using syncora_server.Interface.ICurrentUser;
 using syncora_server.Interface.IFollow;
 
@@ -26,7 +27,11 @@ public class FollowService(IFollowRepository followRepository, ICurrentUserServi
     public async Task SendFollowRequestAsync(Guid receiverId)
     {
         var senderId = _currentUserService.UserId;
-        if (senderId is null) throw new Exception("User not found.");
+
+        if (receiverId == Guid.Empty || receiverId != senderId)
+            throw new FollowExceptions.NotFoundReceiverId("Receiver id is required.", StatusCodes.Status400BadRequest);
+
+        if (senderId is null) throw new UserExceptions.UserNotFound("User not found.", StatusCodes.Status404NotFound);
 
         await _followRepository.SendFollowRequestAsync(senderId.Value, receiverId);
     }
