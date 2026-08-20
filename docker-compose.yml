@@ -1,18 +1,18 @@
 services:
-  frontend:
-    build: ../SynCora
-    ports:
-      - "5173:5173"
-    volumes:
-      - ../SynCora:/app
-      - /app/node_modules
-      - /app/.expo
-      - /app/package.json*
-    env_file:
-      - ../SynCora/.env
-    depends_on:
-      - syncora_server
-    command: npx expo start --tunnel --clear
+  # frontend:
+  #   build: ../SynCora
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ../SynCora:/app
+  #     - /app/node_modules
+  #     - /app/.expo
+  #     - /app/package.json*
+  #   env_file:
+  #     - ../SynCora/.env
+  #   depends_on:
+  #     - syncora_server
+  #   command: npx expo start --tunnel --clear
 
   syncora_server:
     build: .
